@@ -1,0 +1,18 @@
+app:
+  name: "Droqsic"
+  prefork: false
+
+server:
+  port: ${PORT}
+  instance: ${INSTANCE}
+  domain: ${DOMAIN}
+
+databse:
+  uri: ${DB_HOST}
+  db: ${DB_NAME}
+
+cache:
+  uri: ${CACHE_HOST}
+  db: ${CACHE_DB}
+  user: ${CACHE_USER}
+  pass: ${CACHE_PASS}

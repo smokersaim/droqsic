@@ -1,0 +1,8 @@
+go.sum
+
+.env
+.env.production
+.env.development
+
+*.log
+/storage/tmp/*
