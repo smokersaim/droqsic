@@ -1,5 +1,6 @@
 {
   "gopls": {
     "buildFlags": ["-tags=wireinject"]
-  }
+  },
+  "postman.settings.dotenv-detection-notification-visibility": false
 }

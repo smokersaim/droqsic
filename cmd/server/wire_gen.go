@@ -10,6 +10,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/wire"
 	"github.com/smokersaim/droqsic/cmd/config"
+	"github.com/smokersaim/droqsic/internal/infrastructure/cache"
+	"github.com/smokersaim/droqsic/internal/infrastructure/database"
 	"github.com/smokersaim/droqsic/internal/infrastructure/http/middleware"
 	"github.com/smokersaim/droqsic/internal/infrastructure/logger"
 	"go.uber.org/zap"
@@ -21,10 +23,20 @@ func InitializeApp() (*AppDependencies, error) {
 	config := ProvideConfig()
 	app := ProvideFiberApp(config)
 	logger := ProvideLogger()
+	mongoDB, err := ProvideMongoDB(config, logger)
+	if err != nil {
+		return nil, err
+	}
+	redisCache, err := ProvideRedisCache(config, logger)
+	if err != nil {
+		return nil, err
+	}
 	appDependencies := &AppDependencies{
-		App: app,
-		Cfg: config,
-		Log: logger,
+		App:   app,
+		Cfg:   config,
+		Log:   logger,
+		Mongo: mongoDB,
+		Redis: redisCache,
 	}
 	return appDependencies, nil
 }
@@ -32,9 +44,11 @@ func InitializeApp() (*AppDependencies, error) {
 // di.go:
 
 type AppDependencies struct {
-	App *fiber.App
-	Cfg *config.Config
-	Log *zap.Logger
+	App   *fiber.App
+	Cfg   *config.Config
+	Log   *zap.Logger
+	Mongo *database.MongoDB
+	Redis *cache.RedisCache
 }
 
 func ProvideLogger() *zap.Logger {
@@ -47,6 +61,14 @@ func ProvideConfig() *config.Config {
 	return config.LoadConfigs(log)
 }
 
+func ProvideMongoDB(cfg *config.Config, log *zap.Logger) (*database.MongoDB, error) {
+	return database.ConnectMongoDB(cfg, log)
+}
+
+func ProvideRedisCache(cfg *config.Config, log *zap.Logger) (*cache.RedisCache, error) {
+	return cache.ConnectRedisCache(cfg, log)
+}
+
 func ProvideFiberApp(cfg *config.Config) *fiber.App {
 	app := NewFiberApp(cfg)
 	middleware.Cors(app, cfg)
@@ -56,5 +78,7 @@ func ProvideFiberApp(cfg *config.Config) *fiber.App {
 var AppSet = wire.NewSet(
 	ProvideLogger,
 	ProvideConfig,
-	ProvideFiberApp, wire.Struct(new(AppDependencies), "App", "Cfg", "Log"),
+	ProvideMongoDB,
+	ProvideRedisCache,
+	ProvideFiberApp, wire.Struct(new(AppDependencies), "App", "Cfg", "Log", "Mongo", "Redis"),
 )

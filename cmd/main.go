@@ -12,5 +12,5 @@ func main() {
 		log.Fatal("Failed to initialize application: ", err)
 	}
 
-	server.InitServer(deps.App, deps.Cfg, deps.Log)
+	server.InitServer(deps.App, deps.Cfg, deps.Log, deps.Mongo, deps.Redis)
 }

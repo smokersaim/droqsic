@@ -35,7 +35,7 @@ type DatabaseConfigs struct {
 
 type CacheConfigs struct {
 	URI      string
-	Database string
+	Database int
 	Username string
 	Password string
 }
@@ -74,7 +74,7 @@ func LoadConfigs(log *zap.Logger) *Config {
 		viper.Set("database.database", getEnv("DB_NAME", viper.GetString("database.database")))
 
 		viper.Set("cache.uri", getEnv("CACHE_URI", viper.GetString("cache.uri")))
-		viper.Set("cache.database", getEnv("CACHE_DB", viper.GetString("cache.database")))
+		viper.Set("cache.database", getEnvAsInt("CACHE_DB", viper.GetInt("cache.database")))
 		viper.Set("cache.username", getEnv("CACHE_USER", viper.GetString("cache.username")))
 		viper.Set("cache.password", getEnv("CACHE_PASS", viper.GetString("cache.password")))
 

@@ -9,10 +9,12 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/smokersaim/droqsic/cmd/config"
+	"github.com/smokersaim/droqsic/internal/infrastructure/cache"
+	"github.com/smokersaim/droqsic/internal/infrastructure/database"
 	"go.uber.org/zap"
 )
 
-func InitServer(app *fiber.App, cfg *config.Config, log *zap.Logger) {
+func InitServer(app *fiber.App, cfg *config.Config, log *zap.Logger, mongo *database.MongoDB, redis *cache.RedisCache) {
 	maxProcs := cfg.Server.Instance
 	cpuCount := runtime.NumCPU()
 	if maxProcs > cpuCount {
@@ -33,6 +35,8 @@ func InitServer(app *fiber.App, cfg *config.Config, log *zap.Logger) {
 
 	<-quit
 	log.Info("Shutdown signal received. Initiating graceful termination.")
+	mongo.Disconnect(log)
+	redis.Disconnect(log)
 
 	if err := app.Shutdown(); err != nil {
 		log.Error("Shutdown failure", zap.Error(err))

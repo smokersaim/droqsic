@@ -9,6 +9,8 @@ packages=(
     "github.com/gofiber/fiber/v2"
     "github.com/json-iterator/go"
     "github.com/google/wire"
+    "go.mongodb.org/mongo-driver/mongo"
+    "github.com/redis/go-redis/v9"
 )
 
 for pkg in "${packages[@]}"; do
